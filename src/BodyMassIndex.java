@@ -4,7 +4,7 @@ public class BodyMassIndex {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         double weight, height, bmi;
-        System.out.print("Nhập chiều cao: ");
+        System.out.print("Nhập cân nặng: ");
         weight = scanner.nextDouble();
 
         System.out.print("Chiều cao của bạn ");
