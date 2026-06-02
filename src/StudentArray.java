@@ -1,0 +1,22 @@
+import java.util.Scanner;
+
+public class StudentArray {
+    public static void main(String[] args) {
+        String  [] studentName = {"Duc khanh" , "Chanh", "Sam", "Dan", "Thanh"};
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Nhap ten sinh vien can tim: ");
+        String searchName = scanner.nextLine();
+        boolean isExist = false;
+        for (int i = 0 ; i < studentName.length ; i++){
+            if (studentName[i].equalsIgnoreCase(searchName)){
+                System.out.println("Tim thay sinh vien: " + searchName + " tai vi tri: " + i);
+                isExist = true;
+                break;
+            }
+        }
+        if (!isExist){
+            System.out.println("Khong tim thay sinh vien");
+        }
+
+    }
+}

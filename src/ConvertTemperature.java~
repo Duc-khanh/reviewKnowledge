@@ -1,0 +1,50 @@
+import java.util.Scanner;
+
+public class ConvertTemperature {
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        double fahrenheit;
+        double celsius;
+        int choice;
+
+        do {
+            System.out.println("Menu.");
+            System.out.println("1. Do F sang C");
+            System.out.println("2. Do C sang F");
+            System.out.println("0. Thoat");
+            System.out.println("Nhap lua chon: ");
+            choice = input.nextInt();
+            if (choice != 1 && choice != 2 && choice != 0) {
+                System.out.println("Lua chon khong hop le.");
+            }
+
+            switch (choice) {
+                case 1: {
+                    System.out.println("Nhap do F: ");
+                    fahrenheit = input.nextDouble();
+                    System.out.println("Do F sang Do C: " + fahrenheitToCelsius(fahrenheit));
+                    break;
+                }
+                case 2:{
+                    System.out.println("Nhap do C: ");
+                    celsius = input.nextDouble();
+                    System.out.println("Do C sang do F: " + celsiusToFahrenheit(celsius));
+                    break;
+                }
+                case 0:
+                    System.exit(0);
+            }
+        } while (choice != 0);
+    }
+
+    public static double celsiusToFahrenheit(double celsius) {
+        double fahrenheit = (9.0 / 5) * celsius + 32;
+        return fahrenheit;
+    }
+
+    public static double fahrenheitToCelsius(double fahrenheit) {
+        double celsius = (5.0 / 9) * (fahrenheit - 32);
+        return celsius;
+    }
+}

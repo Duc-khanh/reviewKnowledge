@@ -1,0 +1,39 @@
+import java.util.Scanner;
+
+public class RemoveAnElementArray {
+    public static void main(String[] args) {
+        int[] array = {10, 4, 6, 7, 8, 6, 0, 0};
+
+        Scanner input = new Scanner(System.in);
+
+        System.out.print("Nhap phan tu can xoa: ");
+        int x = input.nextInt();
+
+        int indexDel = -1;
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == x) {
+                indexDel = i;
+                break;
+            }
+        }
+
+        if (indexDel == -1) {
+            System.out.println("Khong tim thay phan tu trong mang");
+        } else {
+
+            // Dich cac phan tu sang trai
+            for (int i = indexDel; i < array.length - 1; i++) {
+                array[i] = array[i + 1];
+            }
+
+            // Gan phan tu cuoi bang 0
+            array[array.length - 1] = 0;
+
+            System.out.println("Mang sau khi xoa:");
+
+            for (int i = 0; i < array.length; i++) {
+                System.out.print(array[i] + " ");
+            }
+        }
+    }
+}
