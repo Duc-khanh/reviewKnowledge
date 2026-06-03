@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-//        Student.change();
+        Student.change();
 //        Student s1 = new Student(102, "DAN");
 //        Student s2 = new Student(101, "KHANH");
 //        s1.display();

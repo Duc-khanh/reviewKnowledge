@@ -1,15 +1,15 @@
 public class Main {
     public static void main(String[] args) {
-//        Student.change();
-//        Student s1 = new Student(102, "DAN");
-//        Student s2 = new Student(101, "KHANH");
-//        s1.display();
-//        s2.display();
+        Student.change();
+        Student s1 = new Student(102, "DAN");
+        Student s2 = new Student(101, "KHANH");
+        s1.display();
+        s2.display();
 
-        Car car1 = new Car("Mazda 3","Skyactiv 3");
-        System.out.println(Car.numberOfCars);
-        Car car2 = new Car("Mazda 6","Skyactiv 6");
-        System.out.println(Car.numberOfCars);
+//        Car car1 = new Car("Mazda 3","Skyactiv 3");
+//        System.out.println(Car.numberOfCars );
+//        Car car2 = new Car("Mazda 6","Skyactiv 6");
+//        System.out.println(Car.numberOfCars);
 
     }
 }
