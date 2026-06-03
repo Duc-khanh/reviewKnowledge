@@ -9,5 +9,7 @@ public class Main {
         double height = scanner.nextDouble();
         Rectangle rectangle = new Rectangle(width, height);
         System.out.println( "hcn cua ban la: \n" + rectangle.display() + "\nChu vi la: " + rectangle.getPerimeter() + "\nDien tich la: " + rectangle.getArea());
+
+
     }
 }
