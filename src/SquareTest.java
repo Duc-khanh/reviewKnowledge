@@ -4,7 +4,6 @@ public class SquareTest {
         System.out.println(square);
         square = new Square(2.3);
         System.out.println(square);
-        square = new Square(2.5, "orange", true);
         System.out.println(square);
     }
 }

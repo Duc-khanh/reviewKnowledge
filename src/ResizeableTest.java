@@ -10,7 +10,7 @@ public class ResizeableTest {
         };
 // tạo đối tượng random
         Random random = new Random();
-
+// duyet mảng
         for (Shape shape : shapes) {
 
             double percent = random.nextInt(100) + 1;
