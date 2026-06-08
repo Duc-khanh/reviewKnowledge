@@ -5,7 +5,6 @@ public class Calculator {
     public double tinhGia(double giaCoBan, double thue) {
         return giaCoBan + thue;
     }
-    // cùng tên nhưng khác tham so
 
     public static void main(String[] args) {
         Calculator calculator = new Calculator();

@@ -8,7 +8,7 @@ public class CircleComparatorTest {
         circles[1] = new Circle();
         circles[2] = new Circle(3.5, "indigo", false);
 
-        System.out.println("Pre-sorted:");
+        System.out.println("Trc khi sắp xếp");
         for (Circle circle : circles) {
             System.out.println(circle);
         }
@@ -16,7 +16,7 @@ public class CircleComparatorTest {
         Comparator circleComparator = new CircleComparator();
         Arrays.sort(circles, circleComparator);
 
-        System.out.println("After-sorted:");
+        System.out.println("Sau khi sắp xếp");
         for (Circle circle : circles) {
             System.out.println(circle);
         }
