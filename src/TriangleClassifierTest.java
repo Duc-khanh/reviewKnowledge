@@ -1,0 +1,42 @@
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TriangleClassifierTest {
+
+    @Test
+    void testEquilateralTriangle() {
+        String result = TriangleClassifier.classifyTriangle(2, 2, 2);
+        assertEquals("tam giác đều", result);
+    }
+// SSJJS
+    @Test
+    void testIsoscelesTriangle() {
+        String result = TriangleClassifier.classifyTriangle(2, 2, 3);
+        assertEquals("tam giác cân", result);
+    }
+
+    @Test
+    void testNormalTriangle() {
+        String result = TriangleClassifier.classifyTriangle(3, 4, 5);
+        assertEquals("tam giác thường", result);
+    }
+
+    @Test
+    void testNotTriangle1() {
+        String result = TriangleClassifier.classifyTriangle(8, 2, 3);
+        assertEquals("không phải là tam giác", result);
+    }
+
+    @Test
+    void testNotTriangle2() {
+        String result = TriangleClassifier.classifyTriangle(-1, 2, 1);
+        assertEquals("không phải là tam giác", result);
+    }
+
+    @Test
+    void testNotTriangle3() {
+        String result = TriangleClassifier.classifyTriangle(0, 1, 1);
+        assertEquals("không phải là tam giác", result);
+    }
+}
