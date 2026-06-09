@@ -1,0 +1,20 @@
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class SimpleCalculatorTest {
+
+    @Test
+    @DisplayName("Testing add 0 + 0")
+    void testAddZeroPlusZero() {
+        int expected = 0;
+        int actual = SimpleCalculator.add(0, 0);
+        assertEquals(expected, actual, "0 + 0 phải bằng 0");
+    }
+
+    @Test
+    @DisplayName("Testing sub 5 - 3")
+    void testSubFiveMinusThree() {
+        assertEquals(2, SimpleCalculator.sub(5, 3), "5 - 3 phải bằng 2");
+    }
+}
