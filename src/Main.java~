@@ -7,6 +7,5 @@ public class Main {
         System.out.println(BinarySearch.binarySearch(BinarySearch.list, 1));
         System.out.println(BinarySearch.binarySearch(BinarySearch.list, 5));
         System.out.println(BinarySearch.binarySearch(BinarySearch.list, 80));
-        //jdjdjjd
     }
 }
