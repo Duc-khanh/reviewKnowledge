@@ -11,10 +11,12 @@ public class Main {
         LinkedList<Character> max = new LinkedList<>();
 
         // Tìm chuỗi tăng dần có độ dài lớn nhất
-        for (int i = 0; i < string.length(); i++) {
+        for (int i = 0; i < string.length(); i++) { //Vòng lặp bên ngoài
+            //Khai báo một linked list trung gian các kí tự của chuỗi tăng dần
             LinkedList<Character> list = new LinkedList<>();
+            //thêm kí tự thứ i vào trong list
             list.add(string.charAt(i));
-            for (int j = i + 1; j < string.length(); j++) {
+            for (int j = i + 1; j < string.length(); j++) { //vòng lặp bên trong
                 //Kiểm tra kí tự tiếp theo có lớn hơn kí tự cuối cùng trong list hay không
                 if (string.charAt(j) > list.getLast()) {
                     //Nếu có thì thêm vào trong list
