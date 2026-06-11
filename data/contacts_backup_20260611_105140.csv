@@ -1,0 +1,11 @@
+id,phone,fullName,group,gender,address,birthday,email,notes
+b24ef864-7096-41fb-8b43-2287a19ad930,0912345678,Nguyen Van A,Gia dinh,MALE,Hanoi,15/06/1990,a.nguyen@example.com,Uu tien
+d062828b-b8ba-4674-8b6b-db62351ab64a,0987654321,Tran Thi B,Cong viec,FEMALE,Saigon,17/06/1995,b.tran@example.com,Doi tac
+ef85312a-3b02-4874-a690-c2776c5b05a7,0903334444,Le Van C,Ban be,MALE,Da Nang,12/06/1988,c.le@example.com,
+a776c66d-1510-449e-b9ab-1d7b3228a822,0914445555,Pham Thi D,Cong viec,FEMALE,Hue,11/06/2000,d.pham@example.com,Dong nghiep
+3c48a7b3-c5a4-4ab2-9d32-d119c8a91da3,0905556666,Hoang Van E,Gia dinh,MALE,Nha Trang,05/12/1985,e.hoang@example.com,
+2bba6a4d-ef72-4e4b-bb65-da2bb6a98da2,0976667777,Vu Thi F,Ban be,FEMALE,Can Tho,22/03/1993,f.vu@example.com,
+f1165a2a-b731-41df-a29d-472e3a1f2aa9,0988889999,Doan Van G,Khac,MALE,Hai Phong,18/06/1992,g.doan@example.com,
+d1b918a9-bc22-491a-a62a-de29a3bb9da5,0919990000,Bui Thi H,Cong viec,FEMALE,Vinh,09/09/1997,h.bui@example.com,
+cb4aa3c4-f2a1-4322-990a-dd1bc7a8bb03,0901112222,Dang Van I,Gia dinh,MALE,Da Lat,30/10/1991,i.dang@example.com,
+d77fb32d-cf43-41bb-a290-dbb6b2a92db4,0982223333,Ngo Thi K,Ban be,FEMALE,Quang Ninh,01/01/1996,k.ngo@example.com,

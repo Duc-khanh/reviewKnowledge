@@ -1,0 +1,57 @@
+package repository;
+
+import model.Contact;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ContactRepository implements Repository<Contact> {
+    private final List<Contact> contacts = new ArrayList<>();
+
+    @Override
+    public void add(Contact item) {
+        contacts.add(item);
+    }
+
+    @Override
+    public void update(Contact item) {
+        for (int i = 0; i < contacts.size(); i++) {
+            if (contacts.get(i).getId().equals(item.getId())) {
+                contacts.set(i, item);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void delete(String id) {
+        contacts.removeIf(c -> c.getId().equals(id));
+    }
+
+    @Override
+    public Contact findById(String id) {
+        for (Contact c : contacts) {
+            if (c.getId().equals(id)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<Contact> findAll() {
+        return new ArrayList<>(contacts);
+    }
+
+    public Contact findByPhone(String phone) {
+        for (Contact c : contacts) {
+            if (c.getPhone().equals(phone)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public void clear() {
+        contacts.clear();
+    }
+}

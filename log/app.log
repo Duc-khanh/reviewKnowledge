@@ -1,0 +1,18 @@
+[2026-06-11 10:43:00] [INFO]  Khởi tạo hệ thống Contact Manager Pro v2.0 thành công.
+[2026-06-11 10:46:58] [INFO ] Đã thêm danh bạ mới: Nguyễn Đức Khánh (0856011223)
+[2026-06-11 10:47:26] [ERROR] Lỗi khi cập nhật danh bạ - Exception: exception.ContactNotFoundException: Không tìm thấy số điện thoại 0856015345 trong danh bạ.
+exception.ContactNotFoundException: Không tìm thấy số điện thoại 0856015345 trong danh bạ.
+	at ui.ConsoleUI.updateContactFlow(ConsoleUI.java:245)
+	at ui.ConsoleUI.start(ConsoleUI.java:42)
+	at Main.main(Main.java:15)
+[2026-06-11 10:48:43] [INFO ] Đã cập nhật danh bạ: Nguyễn Đức Khánh -> Nguyễn Đức Khánh
+[2026-06-11 10:51:00] [INFO ] Đã đọc 10 danh bạ từ data/contacts.csv
+[2026-06-11 10:51:12] [INFO ] Đã đọc 10 danh bạ từ data/contacts.csv
+[2026-06-11 10:51:40] [INFO ] Tự động backup file cũ thành contacts_backup_20260611_105140.csv
+[2026-06-11 10:51:40] [INFO ] Đã ghi 10 danh bạ vào data/contacts.csv
+[2026-06-11 10:52:19] [INFO ] Đã hoàn tác (Undo) thao tác thành công.
+[2026-06-11 10:52:29] [INFO ] Đã làm lại (Redo) thao tác thành công.
+[2026-06-11 14:06:25] [INFO ] Đã thêm danh bạ mới: Duc Khanh (0856015345)
+[2026-06-11 14:09:28] [INFO ] Đã hoàn tác (Undo) thao tác thành công.
+[2026-06-11 14:11:44] [INFO ] Đã làm lại (Redo) thao tác thành công.
+[2026-06-11 15:56:56] [INFO ] Đã đọc 10 danh bạ từ data/contacts.csv

@@ -1,0 +1,537 @@
+package ui;
+
+import exception.*;
+import model.Contact;
+import model.Gender;
+import service.ContactService;
+import service.SearchService;
+import service.StatisticsService;
+import util.AppLogger;
+import util.Validator;
+
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class ConsoleUI {
+    private final ContactService contactService;
+    private final SearchService searchService;
+    private final StatisticsService statisticsService;
+    private final Scanner scanner = new Scanner(System.in);
+    private static final String DEFAULT_CSV_PATH = "data/contacts.csv";
+
+    public ConsoleUI(ContactService contactService, SearchService searchService, StatisticsService statisticsService) {
+        this.contactService = contactService;
+        this.searchService = searchService;
+        this.statisticsService = statisticsService;
+    }
+
+    public void start() {
+        while (true) {
+            printMenu();
+            System.out.print("Chọn chức năng (0-10): ");
+            String choice = scanner.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    viewContactsFlow();
+                    break;
+                case "2":
+                    addContactFlow();
+                    break;
+                case "3":
+                    updateContactFlow();
+                    break;
+                case "4":
+                    deleteContactFlow();
+                    break;
+                case "5":
+                    searchContactsFlow();
+                    break;
+                case "6":
+                    showStatisticsFlow();
+                    break;
+                case "7":
+                    readCsvFlow();
+                    break;
+                case "8":
+                    writeCsvFlow();
+                    break;
+                case "9":
+                    undoFlow();
+                    break;
+                case "10":
+                    redoFlow();
+                    break;
+                case "0":
+                    System.out.println("Cảm ơn bạn đã sử dụng Contact Manager Pro. Tạm biệt!");
+                    return;
+                default:
+                    System.out.println("Lựa chọn không hợp lệ, vui lòng chọn lại từ 0 đến 10.");
+            }
+        }
+    }
+
+    private void printMenu() {
+        System.out.println("\n╔══════════════════════════════════════╗");
+        System.out.println("║      CONTACT MANAGER PRO             ║");
+        System.out.println("╠══════════════════════════════════════╣");
+        System.out.println("║  1.  Xem danh sách                   ║");
+        System.out.println("║  2.  Thêm mới                        ║");
+        System.out.println("║  3.  Cập nhật                        ║");
+        System.out.println("║  4.  Xóa                             ║");
+        System.out.println("║  5.  Tìm kiếm nâng cao               ║");
+        System.out.println("║  6.  Thống kê & Nhắc sinh nhật       ║");
+        System.out.println("║  7.  Đọc từ file CSV                 ║");
+        System.out.println("║  8.  Ghi vào file CSV                ║");
+        System.out.println("║  9.  Undo thao tác cuối              ║");
+        System.out.println("║ 10.  Redo thao tác                   ║");
+        System.out.println("║  0.  Thoát                           ║");
+        System.out.println("╚══════════════════════════════════════╝");
+    }
+
+    private void viewContactsFlow() {
+        List<Contact> list = contactService.getAllContacts();
+        if (list.isEmpty()) {
+            System.out.println("Danh bạ trống.");
+            return;
+        }
+
+        System.out.println("\nSắp xếp theo:");
+        System.out.println("  A. Họ tên (A→Z)");
+        System.out.println("  B. Họ tên (Z→A)");
+        System.out.println("  C. Ngày sinh (cũ → mới)");
+        System.out.println("  D. Nhóm (A→Z), sau đó Họ tên (A→Z)");
+        System.out.println("  E. Không sắp xếp (giữ nguyên thứ tự nhập)");
+        System.out.print("Chọn: ");
+        String sortOption = scanner.nextLine().trim();
+
+        System.out.println("\nLọc danh sách (Enter để bỏ qua):");
+        System.out.print("  Nhóm: ");
+        String filterGroup = scanner.nextLine().trim();
+        System.out.print("  Giới tính (MALE/FEMALE/OTHER): ");
+        String filterGenderStr = scanner.nextLine().trim().toUpperCase();
+
+        Gender filterGender = null;
+        if (!filterGenderStr.isEmpty()) {
+            try {
+                filterGender = Gender.valueOf(filterGenderStr);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Giới tính không hợp lệ, bỏ qua lọc theo giới tính.");
+            }
+        }
+
+        final String finalFilterGroup = filterGroup;
+        final Gender finalFilterGender = filterGender;
+        List<Contact> result = list.stream()                 // stream API chuyển List<Contact> thành một Stream<Contact> để xử lý dữ liệu bằng Stream API
+                .filter(c -> {                               // lambda
+                    if (finalFilterGroup.isEmpty()) return true;
+                    return c.getGroup().equalsIgnoreCase(finalFilterGroup);
+                })
+                .filter(c -> {
+                    if (finalFilterGender == null) return true;
+                    return c.getGender() == finalFilterGender;
+                })
+                .collect(Collectors.toList());
+
+        result = sortContacts(result, sortOption);
+
+        printTable(result);
+    }
+
+    private List<Contact> sortContacts(List<Contact> list, String sortOption) {
+        List<Contact> sorted = new ArrayList<>(list);
+        switch (sortOption.toUpperCase()) {
+            case "A":
+                sorted.sort(Comparator.comparing(Contact::getFullName, String.CASE_INSENSITIVE_ORDER)); // Comparator sắp xếp
+                break;
+            case "B":
+                sorted.sort(Comparator.comparing(Contact::getFullName, String.CASE_INSENSITIVE_ORDER).reversed()); // reversed() đảo ngược kết quả
+                break;
+            case "C":
+                sorted.sort((c1, c2) -> {
+                    if (c1.getBirthday() == null && c2.getBirthday() == null) return 0;
+                    if (c1.getBirthday() == null) return 1;
+                    if (c2.getBirthday() == null) return -1;
+                    return c1.getBirthday().compareTo(c2.getBirthday());
+                });
+                break;
+            case "D":
+                sorted.sort(Comparator.comparing(Contact::getGroup, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Contact::getFullName, String.CASE_INSENSITIVE_ORDER));   // thenComparing() dùng để sắp xếp nhiều tiêu chí
+                break;
+            case "E":
+            default:
+                break;
+        }
+        return sorted;
+    }
+
+    private void addContactFlow() {
+        System.out.println("\n--- THÊM MỚI DANH BẠ ---");
+        try {
+            System.out.print("Nhập số điện thoại (bắt buộc): ");
+            String phone = scanner.nextLine().trim();
+            Validator.validatePhone(phone);
+
+            System.out.print("Nhập họ tên (bắt buộc): ");
+            String fullName = scanner.nextLine().trim();
+            Validator.validateRequired(fullName, "Họ tên");
+
+            String group = "";
+            while (group.isEmpty()) {
+                System.out.print("Nhập nhóm (bắt buộc): ");
+                group = scanner.nextLine().trim();
+                if (group.isEmpty()) {
+                    System.out.println("Nhóm không được để trống. Vui lòng nhập lại.");
+                }
+            }
+
+            Gender gender = null;
+            while (gender == null) {
+                System.out.print("Nhập giới tính (MALE / FEMALE / OTHER): ");
+                String genderStr = scanner.nextLine().trim().toUpperCase();
+                try {
+                    gender = Gender.valueOf(genderStr);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Giới tính phải là MALE, FEMALE hoặc OTHER. Vui lòng nhập lại.");
+                }
+            }
+
+            System.out.print("Nhập địa chỉ (không bắt buộc): ");
+            String address = scanner.nextLine().trim();
+
+            LocalDate birthday = null;
+            while (true) {
+                System.out.print("Nhập ngày sinh (dd/MM/yyyy, không bắt buộc): ");
+                String birthdayStr = scanner.nextLine().trim();
+                if (birthdayStr.isEmpty()) {
+                    break;
+                }
+                try {
+                    birthday = Validator.validateBirthday(birthdayStr);
+                    break;
+                } catch (InvalidDataException e) {
+                    System.out.println("Lỗi: " + e.getMessage() + " Vui lòng nhập lại.");
+                }
+            }
+
+            System.out.print("Nhập email (không bắt buộc): ");
+            String email = scanner.nextLine().trim();
+            if (!email.isEmpty()) {
+                Validator.validateEmail(email);
+            }
+
+            System.out.print("Nhập ghi chú (không bắt buộc): ");
+            String notes = scanner.nextLine().trim();
+
+            Contact newContact = new Contact(null, phone, fullName, group, gender, address, birthday, email, notes);
+            contactService.addContact(newContact);
+
+            System.out.println("Đã thêm danh bạ thành công!");
+        } catch (AppException e) {
+            System.out.println("Lỗi: " + e.getMessage());
+            AppLogger.error("Lỗi khi thêm danh bạ", e);
+        }
+    }
+
+    private void updateContactFlow() {
+        System.out.println("\n--- CẬP NHẬT DANH BẠ ---");
+        try {
+            System.out.print("Nhập số điện thoại cần sửa: ");
+            String oldPhone = scanner.nextLine().trim();
+            
+            Contact existing = contactService.findByPhone(oldPhone);
+            if (existing == null) {
+                throw new ContactNotFoundException("Không tìm thấy số điện thoại " + oldPhone + " trong danh bạ.");
+            }
+
+            System.out.println("Thông tin hiện tại của danh bạ (Nhấn Enter để giữ nguyên):");
+            System.out.println("  Họ tên: " + existing.getFullName());
+            System.out.println("  Số điện thoại: " + existing.getPhone());
+            System.out.println("  Nhóm: " + existing.getGroup());
+            System.out.println("  Giới tính: " + existing.getGender());
+            System.out.println("  Địa chỉ: " + (existing.getAddress().isEmpty() ? "(trống)" : existing.getAddress()));
+            String bdayStr = existing.getBirthday() != null ? existing.getBirthday().format(Validator.DATE_FORMATTER) : "(trống)";
+            System.out.println("  Ngày sinh: " + bdayStr);
+            System.out.println("  Email: " + (existing.getEmail().isEmpty() ? "(trống)" : existing.getEmail()));
+            System.out.println("  Ghi chú: " + (existing.getNotes().isEmpty() ? "(trống)" : existing.getNotes()));
+
+            System.out.println("\nNhập thông tin mới:");
+            
+            System.out.print("Họ tên (" + existing.getFullName() + "): ");
+            String fullName = scanner.nextLine().trim();
+            if (fullName.isEmpty()) fullName = existing.getFullName();
+
+            System.out.print("Số điện thoại (" + existing.getPhone() + "): ");
+            String phone = scanner.nextLine().trim();
+            if (phone.isEmpty()) phone = existing.getPhone();
+            Validator.validatePhone(phone);
+
+            System.out.print("Nhóm (" + existing.getGroup() + "): ");
+            String group = scanner.nextLine().trim();
+            if (group.isEmpty()) group = existing.getGroup();
+
+            Gender gender = existing.getGender();
+            while (true) {
+                System.out.print("Giới tính (" + existing.getGender() + ") [MALE/FEMALE/OTHER]: ");
+                String genderStr = scanner.nextLine().trim().toUpperCase();
+                if (genderStr.isEmpty()) {
+                    break;
+                }
+                try {
+                    gender = Gender.valueOf(genderStr);
+                    break;
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Giới tính không hợp lệ. Chỉ chấp nhận MALE, FEMALE hoặc OTHER.");
+                }
+            }
+
+            System.out.print("Địa chỉ (" + (existing.getAddress().isEmpty() ? "trống" : existing.getAddress()) + "): ");
+            String address = scanner.nextLine().trim();
+            if (address.isEmpty()) address = existing.getAddress();
+
+            LocalDate birthday = existing.getBirthday();
+            while (true) {
+                System.out.print("Ngày sinh (" + bdayStr + ") [dd/MM/yyyy]: ");
+                String birthdayInput = scanner.nextLine().trim();
+                if (birthdayInput.isEmpty()) {
+                    break;
+                }
+                try {
+                    birthday = Validator.validateBirthday(birthdayInput);
+                    break;
+                } catch (InvalidDataException e) {
+                    System.out.println("Lỗi: " + e.getMessage() + " Vui lòng nhập lại.");
+                }
+            }
+
+            System.out.print("Email (" + (existing.getEmail().isEmpty() ? "trống" : existing.getEmail()) + "): ");
+            String email = scanner.nextLine().trim();
+            if (email.isEmpty()) {
+                email = existing.getEmail();
+            } else {
+                Validator.validateEmail(email);
+            }
+
+            System.out.print("Ghi chú (" + (existing.getNotes().isEmpty() ? "trống" : existing.getNotes()) + "): ");
+            String notes = scanner.nextLine().trim();
+            if (notes.isEmpty()) notes = existing.getNotes();
+
+            Contact updatedContact = new Contact(existing.getId(), phone, fullName, group, gender, address, birthday, email, notes);
+            contactService.updateContact(oldPhone, updatedContact);
+            System.out.println("Cập nhật danh bạ thành công!");
+        } catch (AppException e) {
+            System.out.println("Lỗi: " + e.getMessage());
+            AppLogger.error("Lỗi khi cập nhật danh bạ", e);
+        }
+    }
+
+    private void deleteContactFlow() {
+        System.out.println("\n--- XÓA DANH BẠ ---");
+        try {
+            System.out.print("Nhập số điện thoại cần xóa: ");
+            String phone = scanner.nextLine().trim();
+
+            Contact existing = contactService.findByPhone(phone);
+            if (existing == null) {
+                throw new ContactNotFoundException("Không tìm thấy danh bạ với số điện thoại: " + phone);
+            }
+
+            System.out.println("Thông tin danh bạ cần xóa:");
+            System.out.println("  Họ tên: " + existing.getFullName());
+            System.out.println("  Số điện thoại: " + existing.getPhone());
+            System.out.println("  Nhóm: " + existing.getGroup());
+
+            System.out.print("Bạn có chắc muốn xóa " + existing.getFullName() + "? (Y/N): ");
+            String confirm = scanner.nextLine().trim();
+            if (confirm.equalsIgnoreCase("Y")) {
+                contactService.deleteContact(phone);
+                System.out.println("Đã xóa danh bạ thành công!");
+            } else {
+                System.out.println("Hủy bỏ thao tác xóa.");
+            }
+        } catch (AppException e) {
+            System.out.println("Lỗi: " + e.getMessage());
+            AppLogger.error("Lỗi khi xóa danh bạ", e);
+        }
+    }
+
+    private void searchContactsFlow() {
+        System.out.println("\n--- TÌM KIẾM NÂNG CAO ---");
+        System.out.println("Tìm kiếm theo:");
+        System.out.println("  1. Số điện thoại (gần đúng)");
+        System.out.println("  2. Họ tên (gần đúng, không phân biệt dấu)");
+        System.out.println("  3. Nhóm (chính xác)");
+        System.out.println("  4. Tìm kiếm kết hợp nhiều tiêu chí");
+        System.out.print("Chọn: ");
+        String option = scanner.nextLine().trim();
+
+        List<Contact> all = contactService.getAllContacts();
+        List<Contact> result = new ArrayList<>();
+
+        switch (option) {
+            case "1":
+                System.out.print("Nhập số điện thoại tìm kiếm: ");
+                String phoneQuery = scanner.nextLine().trim();
+                result = searchService.searchByPhone(all, phoneQuery);
+                break;
+            case "2":
+                System.out.print("Nhập họ tên tìm kiếm (không cần gõ dấu): ");
+                String nameQuery = scanner.nextLine().trim();
+                result = searchService.searchByName(all, nameQuery);
+                break;
+            case "3":
+                System.out.print("Nhập nhóm tìm kiếm (chính xác): ");
+                String groupQuery = scanner.nextLine().trim();
+                result = searchService.searchByGroup(all, groupQuery);
+                break;
+            case "4":
+                System.out.print("Nhập họ tên (Enter để bỏ qua): ");
+                String combName = scanner.nextLine().trim();
+                System.out.print("Nhập nhóm (Enter để bỏ qua): ");
+                String combGroup = scanner.nextLine().trim();
+                System.out.print("Nhập giới tính (MALE/FEMALE/OTHER, Enter để bỏ qua): ");
+                String combGenderStr = scanner.nextLine().trim().toUpperCase();
+                Gender combGender = null;
+                if (!combGenderStr.isEmpty()) {
+                    try {
+                        combGender = Gender.valueOf(combGenderStr);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Giới tính không hợp lệ, không lọc theo giới tính.");
+                    }
+                }
+                result = searchService.searchCombined(all, combName, combGroup, combGender);
+                break;
+            default:
+                System.out.println("Lựa chọn không hợp lệ.");
+                return;
+        }
+
+        System.out.println("\nTìm thấy " + result.size() + " danh bạ phù hợp.");
+        printTable(result);
+    }
+
+    private void showStatisticsFlow() {
+        System.out.println("\n--- BÁO CÁO THỐNG KÊ & NHẮC SINH NHẬT ---");
+        String report = statisticsService.generateReport(contactService.getAllContacts());
+        System.out.println(report);
+    }
+
+    private void readCsvFlow() {
+        System.out.println("\n--- ĐỌC DANH BẠ TỪ CSV ---");
+        System.out.println("CẢNH BÁO: Thao tác này sẽ xóa toàn bộ danh bạ hiện tại trong bộ nhớ!");
+        System.out.print("Bạn có muốn tiếp tục? (Y/N): ");
+        String confirm = scanner.nextLine().trim();
+        if (confirm.equalsIgnoreCase("Y")) {
+            try {
+                contactService.loadFromCsv(DEFAULT_CSV_PATH);
+                System.out.println("Đã tải danh bạ từ file CSV thành công!");
+            } catch (Exception e) {
+                System.out.println("Lỗi khi đọc file CSV: " + e.getMessage());
+                AppLogger.error("Lỗi khi đọc file CSV", e);
+            }
+        } else {
+            System.out.println("Hủy thao tác đọc file.");
+        }
+    }
+
+    private void writeCsvFlow() {
+        System.out.println("\n--- GHI DANH BẠ VÀO CSV ---");
+        System.out.println("CẢNH BÁO: Thao tác này sẽ ghi đè lên file contacts.csv hiện tại!");
+        System.out.print("Bạn có muốn tiếp tục? (Y/N): ");
+        String confirm = scanner.nextLine().trim();
+        if (confirm.equalsIgnoreCase("Y")) {
+            try {
+                contactService.saveToCsv(DEFAULT_CSV_PATH);
+                System.out.println("Đã lưu danh bạ vào file CSV thành công!");
+            } catch (Exception e) {
+                System.out.println("Lỗi khi ghi file CSV: " + e.getMessage());
+                AppLogger.error("Lỗi khi ghi file CSV", e);
+            }
+        } else {
+            System.out.println("Hủy thao tác ghi file.");
+        }
+    }
+
+    private void undoFlow() {
+        try {
+            contactService.undo();
+            System.out.println("Hoàn tác (Undo) thành công!");
+        } catch (AppException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void redoFlow() {
+        try {
+            contactService.redo();
+            System.out.println("Làm lại (Redo) thành công!");
+        } catch (AppException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void printTable(List<Contact> contacts) {
+        if (contacts.isEmpty()) {
+            System.out.println("Không có danh bạ nào để hiển thị.");
+            return;
+        }
+        int pageSize = 5;
+        int totalItems = contacts.size();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        int currentPage = 1;
+
+        while (true) {
+            System.out.println("\n+-----+----------------------+---------------+------------+-----------+------------+-------------------------------+");
+            System.out.printf("| %-3s | %-20s | %-13s | %-10s | %-9s | %-10s | %-29s |\n", 
+                    "STT", "Họ tên", "Số điện thoại", "Nhóm", "Giới tính", "Ngày sinh", "Email");
+            System.out.println("+-----+----------------------+---------------+------------+-----------+------------+-------------------------------+");
+            
+            int start = (currentPage - 1) * pageSize;
+            int end = Math.min(start + pageSize, totalItems);
+            for (int i = start; i < end; i++) {
+                Contact c = contacts.get(i);
+                String birthdayStr = c.getBirthday() != null ? c.getBirthday().format(Validator.DATE_FORMATTER) : "N/A";
+                System.out.printf("| %-3d | %-20s | %-13s | %-10s | %-9s | %-10s | %-29s |\n",
+                        (i + 1),
+                        truncate(c.getFullName(), 20),
+                        truncate(c.getPhone(), 13),
+                        truncate(c.getGroup(), 10),
+                        c.getGender().name(),
+                        birthdayStr,
+                        truncate(c.getEmail(), 29)
+                );
+            }
+            System.out.println("+-----+----------------------+---------------+------------+-----------+------------+-------------------------------+");
+            System.out.printf("Trang %d/%d (Tổng số danh bạ: %d)\n", currentPage, totalPages, totalItems);
+            if (totalPages <= 1) {
+                break;
+            }
+            System.out.print("Nhập N (Trang tiếp), P (Trang trước), Q (Quay lại): ");
+            String choice = scanner.nextLine().trim().toUpperCase();
+            if (choice.equals("N")) {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                } else {
+                    System.out.println("Đã ở trang cuối.");
+                }
+            } else if (choice.equals("P")) {
+                if (currentPage > 1) {
+                    currentPage--;
+                } else {
+                    System.out.println("Đã ở trang đầu.");
+                }
+            } else if (choice.equals("Q") || choice.isEmpty()) {
+                break;
+            } else {
+                System.out.println("Lựa chọn không hợp lệ.");
+            }
+        }
+    }
+
+    private String truncate(String text, int maxLength) {
+        if (text == null) return "";
+        if (text.length() <= maxLength) return text;
+        return text.substring(0, maxLength - 3) + "...";
+    }
+}
